@@ -1,61 +1,50 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import ListGroup from "react-bootstrap/ListGroup";
+import { useParams, useNavigate } from "react-router-dom";
+import { TasksService } from "../../../services/tasks.service";
 
-import { backgroundColor } from "mdb-react-ui-kit/dist/types/types/colors";
-
-export const enum Statuses {
-  SignIn = "SignIn",
-  SignUp = "SignUp",
-  Forgot = "Forgot",
-  Reset = "Reset",
-}
-
-const get_status_color = (status: string): backgroundColor => {
-  if (status === "In progress") {
-    return "primary";
-  } else if (status === "Completed") {
-    return "success";
-  } else if (status === "Canceled") {
-    return "light";
-  } else {
-    return "dark";
-  }
+export type Task = {
+  id: string;
+  info: string;
+  created_at: string;
+  expired_time: string;
+  status: string;
+  priority: string;
 };
 
-const get_priority_color = (priority: string): backgroundColor => {
-  if (priority === "High") {
-    return "danger";
-  } else if (priority === "Medium") {
-    return "warning";
-  } else {
-    return "info";
-  }
-};
+const Task = () => {
+  const navigate = useNavigate();
+  const [task, setTask] = useState<Task>();
 
-const Task = ({ task }) => {
+  const params = useParams();
+  const task_id = params.id;
+
+  useEffect(() => {
+    const getData = async () => {
+      await TasksService.get_one(task_id)
+        .then((result) => {
+          setTask(result.data);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    };
+
+    getData();
+  }, []);
+
   return (
-    <tr>
-      <td className="fw-bold mb-1">{task["info"]}</td>
-      <td>
-        <MDBBadge pill color={get_status_color(task["status"])}>
-          {task["status"]}
-        </MDBBadge>
-      </td>
-      <td>
-        <MDBBadge pill color={get_priority_color(task["priority"])}>
-          {task["priority"]}
-        </MDBBadge>
-      </td>
-      <td>{task["expired_time"]}</td>
-      <td>{task["created_at"]}</td>
-      <td>
-        <MDBBtn color="link" rounded size="sm">
-          Edit
-        </MDBBtn>
-        <MDBBtn color="link" rounded size="sm">
-          Delete
-        </MDBBtn>
-      </td>
-    </tr>
+    <div className="container ">
+      <h4 className="row d-grid mt-4 gap-2 d-md-flex justify-content-md-center">Task_id: {task?.id}</h4>
+      <ListGroup className="list-group">
+        <ListGroup.Item>Info: {task?.info}</ListGroup.Item>
+        <ListGroup.Item>Created: {task?.created_at}</ListGroup.Item>
+        <ListGroup.Item>Expired: {task?.expired_time}</ListGroup.Item>
+        <ListGroup.Item>Priority: {task?.priority}</ListGroup.Item>
+        <ListGroup.Item>Status: {task?.status}</ListGroup.Item>
+      </ListGroup>
+      <button className="btn btn-link" onClick={() => navigate(-1)}>Back</button>
+    </div>
   );
 };
 

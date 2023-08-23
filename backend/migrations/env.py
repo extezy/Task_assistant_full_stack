@@ -7,7 +7,7 @@ from alembic import context
 from src.db.base import Base
 from src.settings import DB_HOST, DB_PORT, DB_USER, DB_NAME, DB_PASS
 
-# TODO path files for alembic
+# Path files for alembic
 sys.path.append(os.path.join(sys.path[0], 'src'))
 
 # this is the Alembic Config object, which provides

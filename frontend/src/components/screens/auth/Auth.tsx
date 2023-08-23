@@ -34,10 +34,9 @@ const getComponent = (state: string): JSX.Element | null => {
 
 const Auth = () => {
   const { authState, setAuthState} = useContext(AuthComponentContext);
-
   const [searchParams, setSearchParams] = useSearchParams()
-  const token = searchParams.get('token')
 
+  const token = searchParams.get('token')
   if (token) {
     setAuthState(Components.Reset)
   }

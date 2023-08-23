@@ -1,8 +1,12 @@
 from fastapi.routing import APIRouter
-import uvicorn
 from fastapi import FastAPI
-from src.auth.router import auth_api_router
-from src.tasks.router import tasks_auth_router
+from src.api.api_v1.auth.router import auth_api_router, users_api_router
+from src.api.api_v1.tasks.router import tasks_auth_router
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi_cache import FastAPICache
+from fastapi_cache.backends.redis import RedisBackend
+from redis import asyncio as aioredis
+from src.settings import REDIS_PORT, REDIS_HOST
 
 
 #  create instance  of  the app
@@ -11,15 +15,33 @@ app = FastAPI(title='memo-assistant',
               redoc_url='/api/redoc',
               openapi_url='/api/openapi.json')
 
+origins = [
+   "http://localhost:8000",
+   "http://localhost:3000",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "OPTIONS", "DELETE", "PATCH", "PUT"],
+    allow_headers=["Content-Type", "Set-Cookie", "Access-Control-Allow-Headers", "Access-Control-Allow-Origin",
+                   "Authorization"],
+)
+
 # create the instance for  the  routes
 main_api_router = APIRouter()
 
 # # set  routes to the app instance
 main_api_router.include_router(auth_api_router)
+main_api_router.include_router(users_api_router)
 main_api_router.include_router(tasks_auth_router)
 app.include_router(main_api_router, prefix='/api')
 
 
-if __name__ == '__main__':
+@app.on_event("startup")
+async def startup_event():
+    redis = aioredis.from_url(f"redis://{REDIS_HOST}:{REDIS_PORT}", encodings="utf-8", deccode_responses=True)
+    FastAPICache.init(RedisBackend(redis), prefix="fastapi-cache")
     # run src  on  the  host
-    uvicorn.run("main:app", host="0.0.0.0", reload=True, port=8888)
+    # uvicorn.run("main:app", host="0.0.0.0", reload=True, port=8888)

@@ -81,6 +81,7 @@ const SignUp = () => {
               password,
               passwordConfirmation
             );;
+            setAuthState(Components.SignIn);
           }}
         >
           Sign Up

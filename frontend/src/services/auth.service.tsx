@@ -1,5 +1,8 @@
 import axios from "axios";
 
+
+const Url = "http://localhost:8000/api/auth/";
+
 // Сервис для запроса данных с сервера
 export const AuthService = {
   async signin(username: string, password: string) {
@@ -10,7 +13,7 @@ export const AuthService = {
     };
 
     const response = await axios.post(
-      "http://localhost:8000/api/auth/login",
+      Url + "login",
       {
         username: username,
         password: password,
@@ -19,6 +22,7 @@ export const AuthService = {
     );
 
     localStorage.setItem("memo-assistant", response.data.access_token);
+    // localStorage.setItem("memo-assistant_expired", response.data.expired_in);
 
     return response.data;
   },
@@ -42,7 +46,7 @@ export const AuthService = {
     };
 
     const response = await axios.post(
-      "http://localhost:8000/api/auth/register",
+      Url + "register",
       {
         email: email,
         password: password,
@@ -63,20 +67,21 @@ export const AuthService = {
   },
 
   async logout() {
-    const response = await axios.post(
-      "http://localhost:8000/api/auth/logout"
-    );
-    if (response.status === 500) {
-      throw new Error("Internal server error");
-    }
 
-    if (response.status == 204) {
-      throw new Error("No Content");
-    }
+    const token = localStorage.getItem("memo-assistant");
+    const config = {
+      headers: {
+        "content-type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    };
 
-    if (response.status > 400 && response.status < 500) {
-      throw response.data;
+    try {
+      const response = await axios.post(Url + "logout",[],config);
+    } catch {
+      return null;
     }
+    localStorage.removeItem("memo-assistant")
   },
 
   async forgot(email: string) {
@@ -87,7 +92,7 @@ export const AuthService = {
     };
 
     const response = await axios.post(
-      "http://localhost:8000/api/auth/forgot-password",
+      Url + "forgot-password",
       {
         email: email,
       },
@@ -104,7 +109,7 @@ export const AuthService = {
     };
 
     const response = await axios.post(
-      "http://localhost:8000/api/auth/reset-password",
+      Url + "reset-password",
       {
         password: password,
         token: token,
@@ -112,7 +117,6 @@ export const AuthService = {
       config
     );
 
-    // TODO check this block
     if (response.status === 500) {
       throw new Error("Internal server error");
     }

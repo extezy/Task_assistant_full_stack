@@ -1,5 +1,5 @@
 .env
 ./migrations/versions
-/tests
 .idea
 requirements-old.txt
+.pytest_cache

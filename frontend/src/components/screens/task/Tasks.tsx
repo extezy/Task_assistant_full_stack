@@ -1,6 +1,8 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState, useEffect } from "react";
 import { TasksService } from "../../../services/tasks.service";
 import { useNavigate } from "react-router-dom";
+import { Task } from "./Task";
+
 import {
   MaterialReactTable,
   type MaterialReactTableProps,
@@ -20,30 +22,35 @@ import {
   Stack,
   TextField,
   Tooltip,
-  Checkbox
+  Checkbox,
 } from "@mui/material";
-import { Delete, Edit } from "@mui/icons-material";
+import { Delete, Edit, Search } from "@mui/icons-material";
+import { AuthService } from "../../../services/auth.service";
 // import { data, states } from "./makeData";
 
-export type Task = {
-  id: string;
-  info: string;
-  created_at: string;
-  expired_time: string;
-  status: string;
-  priority: string;
-};
-
-const result: { [key: string]: any } = await TasksService.get_all();
-
 const Tasks = () => {
-    const navigate = useNavigate();
-    console.log(result)
-    if (result["detail"] == "Unauthorized"){
-        navigate("/auth")
-    }
+  const navigate = useNavigate();
+
   const [createModalOpen, setCreateModalOpen] = useState(false);
-  const [tableData, setTableData] = useState<Task[]>(() => result != null ? result["data"] : []);
+
+  const [tableData, setTableData] = useState([]);
+
+  useEffect(() => {
+    const getData = async () => {
+      await TasksService.get_all()
+        .then((result) => {
+          setTableData(result.data);
+        })
+        .catch((error) => {
+          if (error === 401) {
+            localStorage.removeItem("memo-assistant");
+            navigate("/auth");
+          }
+        });
+    };
+    getData();
+  }, []);
+
   const [validationErrors, setValidationErrors] = useState<{
     [cellId: string]: string;
   }>({});
@@ -56,8 +63,13 @@ const Tasks = () => {
   const handleSaveRowEdits: MaterialReactTableProps<Task>["onEditingRowSave"] =
     async ({ exitEditingMode, row, values }) => {
       if (!Object.keys(validationErrors).length) {
-        tableData[row.index] = values;
+        // tableData[row.index] = values;
         //send/receive api updates here, then refetch or update local table data for re-render
+        const response = await TasksService.put(values);
+        // const new_values = TasksService.put(tableData[row.index]);
+        if (response?.data?.status == 200) {
+          tableData[row.index] = values;
+        }
         setTableData([...tableData]);
         exitEditingMode(); //required to exit editing mode and close modal
       }
@@ -73,7 +85,6 @@ const Tasks = () => {
         return;
       }
       //send api delete request here, then refetch or update local table data for re-render
-      console.log(row.getValue("info"));
       TasksService.delete(row.getValue("id"));
       tableData.splice(row.index, 1);
       setTableData([...tableData]);
@@ -128,7 +139,7 @@ const Tasks = () => {
         accessorKey: "info",
         header: "Info",
         enableColumnOrdering: false,
-        enableEditing: true, //disable editing on this column
+        enableEditing: true,
         enableSorting: false,
         size: 140,
       },
@@ -172,7 +183,19 @@ const Tasks = () => {
   );
 
   return (
-    <>
+    <div className="container">
+      <div className="d-grid gap-2 d-md-flex justify-content-md-end">
+        <button
+          className="btn btn btn-outline-info mb-1 mt-1 px-5 btn-sm"
+          color="dark"
+          onClick={async () => {
+            const response = await AuthService.logout();
+            navigate("/auth");
+          }}
+        >
+          Logout
+        </button>
+      </div>
       <MaterialReactTable
         displayColumnDefOptions={{
           "mrt-row-actions": {
@@ -202,6 +225,16 @@ const Tasks = () => {
                 <Delete />
               </IconButton>
             </Tooltip>
+            <Tooltip arrow placement="right" title="Detail">
+              <IconButton
+                color="error"
+                onClick={() => {
+                  navigate(`/task/${row.getValue("id")}`);
+                }}
+              >
+                <Search />
+              </IconButton>
+            </Tooltip>
           </Box>
         )}
         renderTopToolbarCustomActions={() => (
@@ -220,7 +253,7 @@ const Tasks = () => {
         onClose={() => setCreateModalOpen(false)}
         onSubmit={handleCreateNewRow}
       />
-    </>
+    </div>
   );
 };
 
@@ -247,6 +280,7 @@ export const CreateNewAccountModal = ({
 
   const handleSubmit = () => {
     //put your validation logic here
+    const response = TasksService.post(values);
     onSubmit(values);
     onClose();
   };
@@ -289,12 +323,12 @@ export const CreateNewAccountModal = ({
 const validateRequired = (value: string) => !!value.length;
 const validateStatus = (status: string) =>
   !!status.length &&
-  ["in progress", "canceled", "complited", "expired"].includes(
-    status.toLowerCase()
+  ["In progress", "Canceled", "Complited", "Expired"].includes(
+    status
   );
 
 const validatePriority = (priority: string) =>
   !!priority.length &&
-  ["high", "medium", "low"].includes(priority.toLowerCase());
+  ["High", "Medium", "Low"].includes(priority);
 
 export default Tasks;

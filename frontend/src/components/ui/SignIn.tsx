@@ -3,13 +3,16 @@ import { AuthService } from "../../services/auth.service";
 import { MDBCardBody, MDBCol, MDBIcon, MDBInput } from "mdb-react-ui-kit";
 import { AuthComponentContext } from "../providers/AuthComponentProvider";
 import { Components } from "../providers/AuthComponentProvider";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const SignIn = () => {
   const [username, setUserName] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const { authState, setAuthState } = useContext(AuthComponentContext);
   const navigate = useNavigate();
+
+  const location = useLocation();
+  const fromPage = location.state?.from?.pathname || "/task"
 
   return (
     <MDBCol md="6">
@@ -46,7 +49,7 @@ const SignIn = () => {
           onClick={async () => {
             const response = await AuthService.signin(username, password);
             if (response.access_token){
-              navigate("/task");
+              navigate(fromPage);
             }
           }}
         >
