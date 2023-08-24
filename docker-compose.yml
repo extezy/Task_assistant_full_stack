@@ -28,6 +28,8 @@ services:
   postgres_test:
     image: postgres:15
     restart: always
+    environment:
+      PYTHONPATH: .
     env_file:
       - .env
     command: -p 5433
