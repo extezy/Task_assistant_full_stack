@@ -19,7 +19,7 @@ const SignIn = () => {
       <MDBCardBody className="d-flex flex-column">
         <div className="d-flex flex-row mt-2">
           <MDBIcon fas icon="cubes fa-3x me-3" style={{ color: "#ff6219" }} />
-          <span className="h1 fw-bold">Memo Assistant</span>
+          <span className="h1 fw-bold">Task Assistant</span>
         </div>
 
         <h6 className="fw-normal my-1 pb-4" style={{ letterSpacing: "1px" }}>

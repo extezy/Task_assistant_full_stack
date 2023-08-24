@@ -6,7 +6,7 @@ const StartPage = () => {
   const navigate = useNavigate();
   return (
     <div className="container align-items-center">
-      <h1>Welcome to Memo Assistant</h1>
+      <h1>Welcome to Task Assistant</h1>
       <div className="fw-normal mb-1">
       <Button
         className="btn"
