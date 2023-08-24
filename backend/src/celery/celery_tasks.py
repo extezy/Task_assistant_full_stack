@@ -3,7 +3,7 @@ from fastapi_mail import FastMail, MessageSchema, MessageType
 from pydantic import EmailStr, BaseModel
 from typing import List
 from starlette.responses import JSONResponse
-from src.settings import mail_conf
+from src.settings import mail_conf, RESET_PASSWORD_HOST
 
 
 class EmailSchema(BaseModel):
@@ -12,8 +12,7 @@ class EmailSchema(BaseModel):
 
 @celery.task(acks_late=True)
 def send_email_async(email: str, token: str, name: str) -> JSONResponse:
-    # TODO change url for prod
-    html = f'<p>Hello {name}, this reset password mail, follow http://localhost:8000/auth?token={token}</p> '
+    html = f'<p>Hello {name}, for reset password, follow {RESET_PASSWORD_HOST}?token={token}</p> '
 
     message = MessageSchema(
         subject="Fastapi-Mail module",

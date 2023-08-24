@@ -15,7 +15,6 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
     #     print(f"User {user.id} has registered.")
     #
 
-    # TODO send email with link  for reset password
     async def on_after_forgot_password(
         self, user: User, token: str, request: Optional[Request] = None
     ):

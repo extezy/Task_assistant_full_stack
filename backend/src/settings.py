@@ -42,7 +42,7 @@ AUTH_SECRET = os.environ.get("AUTH_SECRET")
 REDIS_HOST = os.environ.get("REDIS_HOST")
 REDIS_PORT = os.environ.get("REDIS_PORT")
 
-
+RESET_PASSWORD_HOST = os.environ.get("RESET_PASSWORD_HOST")
 
 DB_HOST_TEST = os.environ.get("DB_HOST_TEST")
 DB_PORT_TEST = os.environ.get("DB_PORT_TEST")

@@ -40,7 +40,6 @@ class TaskCreateSchema(BaseModel):
 
 
 class TaskPutSchema(BaseModel):
-    # id: Optional[uuid.UUID] = None
     user_id: Optional[uuid.UUID] = None
     info: str
     expired_time: Optional[datetime] = None

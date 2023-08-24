@@ -32,7 +32,6 @@ class UnitOfWork:
 
     async def __aenter__(self):
         self.session = self.session_factory()
-
         self.tasks = TaskRepository(self.session)
 
     async def __aexit__(self, *args):

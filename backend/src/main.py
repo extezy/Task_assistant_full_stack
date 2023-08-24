@@ -43,5 +43,3 @@ app.include_router(main_api_router, prefix='/api')
 async def startup_event():
     redis = aioredis.from_url(f"redis://{REDIS_HOST}:{REDIS_PORT}", encodings="utf-8", deccode_responses=True)
     FastAPICache.init(RedisBackend(redis), prefix="fastapi-cache")
-    # run src  on  the  host
-    # uvicorn.run("main:app", host="0.0.0.0", reload=True, port=8888)
